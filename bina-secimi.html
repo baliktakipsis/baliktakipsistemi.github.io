@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bina Seçimi ve Genel Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js kütüphanesi -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"> <!-- Font -->
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-image: url('binaSecimiArkaPlan.jpg'); /* Uygun bir arka plan resmi */
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            position: relative;
+        }
+
+        /* Saydamlığı olan arka plan overlay */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Siyah bir saydam katman */
+            z-index: -1; /* İçeriği gizlemesin diye katman arka planda kalıyor */
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 28px;
+            color: #4CAF50;
+            margin-top: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Yazıya gölge efekti */
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .building-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            background-color: rgba(76, 175, 80, 0.9); /* Hafif saydam buton */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .building-button:hover {
+            background-color: rgba(69, 160, 73, 0.9);
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 50px 0;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        /* Grafik kutusu için saydam arka plan */
+        .chart-box {
+            background: rgba(255, 255, 255, 0.85); /* Saydam beyaz arka plan */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            margin: 10px;
+        }
+
+        .chart-box h3 {
+            text-align: center;
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h2>Bina Seçimi</h2>
+    <div class="button-container">
+        <button class="building-button" onclick="goToDataEntry('A')">Bina A</button>
+        <button class="building-button" onclick="goToDataEntry('B')">Bina B</button>
+        <button class="building-button" onclick="goToDataEntry('C')">Bina C</button>
+        <button class="building-button" onclick="goToDataEntry('D')">Bina D</button>
+        <button class="building-button" onclick="goToDataEntry('E')">Bina E</button>
+    </div>
+
+    <h2>Genel Dashboard</h2>
+    <!-- Grafiklerin bulunduğu konteyner -->
+    <div class="chart-container">
+        <!-- Pasta Grafiği (Pie Chart) -->
+        <div class="chart-box">
+            <h3>Pasta Grafiği</h3>
+            <canvas id="pieChart"></canvas>
+        </div>
+
+        <!-- Sütun Grafiği (Bar Chart) -->
+        <div class="chart-box">
+            <h3>Sütun Grafiği</h3>
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        function goToDataEntry(building) {
+            // Seçilen binaya göre veri giriş sayfasına yönlendirme
+            window.location.href = `veri-girisi-${building}.html`;
+        }
+        // Sayfa yüklendiğinde grafikleri güncelle
+        window.onload = function() {
+            updateCharts();
+        };
+
+        // Grafikleri güncelleme
+        function updateCharts() {
+            // LocalStorage'dan örnek veriler; farklı binaların verilerini toplayabilirsiniz
+            const storedDataA = JSON.parse(localStorage.getItem('dataListA')) || [];
+            const storedDataB = JSON.parse(localStorage.getItem('dataListB')) || [];
+            const storedDataC = JSON.parse(localStorage.getItem('dataListC')) || [];
+            const storedDataD = JSON.parse(localStorage.getItem('dataListD')) || [];
+            const storedDataE = JSON.parse(localStorage.getItem('dataListE')) || [];
+
+            // Tüm binaların verilerini birleştirme
+            const allData = [...storedDataA, ...storedDataB, ...storedDataC, ...storedDataD, ...storedDataE];
+
+            // Verileri toplamak
+            let olum = 0;
+            let gunlukYem = 0;
+            let gunlukYemYuzde = 0;
+            let gunlukBiomas = 0;
+            let oksijen = 0;
+            let sicaklik = 0;
+
+            allData.forEach(data => {
+                olum += parseInt(data.olum) || 0;
+                gunlukYem += parseInt(data.gunlukYem) || 0;
+                gunlukYemYuzde += parseInt(data.gunlukYemYuzde) || 0;
+                gunlukBiomas += parseInt(data.gunlukBiomas) || 0;
+                oksijen += parseFloat(data.oksijen) || 0;
+                sicaklik += parseFloat(data.sicaklik) || 0;
+            });
+
+            // Pasta Grafiği (Pie Chart) oluşturma
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Ölüm', 'Günlük Yem', 'Günlük Yem Yüzde', 'Günlük Biomas', 'Oksijen', 'Sıcaklık'],
+                    datasets: [{
+                        data: [olum, gunlukYem, gunlukYemYuzde, gunlukBiomas, oksijen, sicaklik],
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+
+            // Sütun Grafiği (Bar Chart) oluşturma
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ölüm', 'Günlük Yem', 'Günlük Yem Yüzde', 'Günlük Biomas', 'Oksijen', 'Sıcaklık'],
+                    datasets: [{
+                        label: 'Değerler',
+                        data: [olum, gunlukYem, gunlukYemYuzde, gunlukBiomas, oksijen, sicaklik],
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

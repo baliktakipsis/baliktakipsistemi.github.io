@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bina D Veri Girişi</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif; /* Montserrat fontu sayfanın her yerine uygulanacak */
+            background-image: url('baliklar3.jpg'); /* Arka plan resmi */
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #2e8b57;
+            border-bottom: 2px solid #2e8b57;
+            padding-bottom: 10px;
+            background: rgba(255, 255, 255, 0.8); /* Saydam beyaz arka plan */
+            border-radius: 5px;
+        }
+
+        form {
+            background-color: rgba(255, 255, 255, 0.8); /* Saydam beyaz arka plan */
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #246b44;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.8); /* Saydam beyaz arka plan */
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #2e8b57;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(242, 242, 242, 0.8); /* Saydam gri arka plan */
+        }
+
+        tr:hover {
+            background-color: rgba(224, 247, 250, 0.8); /* Saydam mavi arka plan */
+        }
+
+        .button-container {
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.8); /* Saydam beyaz arka plan */
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h2>Bina D Veri Girişi</h2>
+    <form id="dataForm">
+        <label for="kafesSecimi">Kafes Seçimi:</label>
+        <select id="kafesSecimi" required>
+            <!-- Dinamik olarak kafes seçenekleri eklenecek -->
+        </select>
+
+        <label for="olum">Ölüm:</label>
+        <input type="number" id="olum" required>
+
+        <label for="gunlukYem">Günlük Yem (kg):</label>
+        <input type="number" id="gunlukYem" required>
+
+        <label for="balikRapor">Balık Rapor:</label>
+        <input type="text" id="balikRapor" required>
+
+        <label for="oksijen">Oksijen (mg/L):</label>
+        <input type="number" id="oksijen" placeholder="Örn: 8" step="0.01" required>
+
+        <label for="sicaklik">Sıcaklık (°C):</label>
+        <input type="number" id="sicaklik" placeholder="Örn: 20" step="0.1" required>
+
+        <label for="gunlukYemYuzde">Günlük Yem Yüzde (%):</label>
+        <input type="number" id="gunlukYemYuzde" required>
+
+        <label for="gunlukBiomas">Günlük Biomas (kg):</label>
+        <input type="number" id="gunlukBiomas" required>
+
+        <button type="submit">Veri Ekle</button>
+    </form>
+
+    <h2>Kafes Yönetimi</h2>
+    <input type="text" id="kafesAdi" placeholder="Yeni Kafes Adı">
+    <button onclick="addCage()">Kafes Ekle</button>
+    <button onclick="deleteCage()">Kafes Sil</button><br><br>
+    
+    <h2>Veri Listesi</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Kafes</th>
+                <th>Ay</th>
+                <th>Ölüm</th>
+                <th>Günlük Yem</th>
+                <th>Balık Rapor</th>
+                <th>Oksijen (mg/L)</th>
+                <th>Sıcaklık (°C)</th>
+                <th>Günlük Yem Yüzde</th>
+                <th>Günlük Biomas</th>
+                <th>Tarih ve Saat</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody id="dataTableBody">
+            <!-- Yeni veriler buraya eklenecek -->
+        </tbody>
+    </table>
+    <div class="button-container">
+        <button onclick="goToEditPage()">Verileri Düzenle</button>
+        <button onclick="goBack()">Bina Seçimine Dön</button>
+    </div>
+
+    <script>
+        // Sayfa yüklendiğinde localStorage'dan verileri yükle
+        window.onload = function() {
+            loadCages();
+            loadStoredData();
+        };
+
+        function loadStoredData() {
+            const storedData = JSON.parse(localStorage.getItem('dataListD')) || []; // Bina D için veriler
+            const tableBody = document.getElementById('dataTableBody');
+
+            storedData.forEach((data, index) => {
+                addRowToTable(data, index);
+            });
+        }
+
+        document.getElementById('dataForm').onsubmit = function(event) {
+            event.preventDefault();
+
+            // Form alanlarından verileri al
+            const kafes = document.getElementById('kafesSecimi').value;
+            const olum = document.getElementById('olum').value;
+            const gunlukYem = document.getElementById('gunlukYem').value;
+            const balikRapor = document.getElementById('balikRapor').value;
+            const oksijen = document.getElementById('oksijen').value;
+            const sicaklik = document.getElementById('sicaklik').value;
+            const gunlukYemYuzde = document.getElementById('gunlukYemYuzde').value;
+            const gunlukBiomas = document.getElementById('gunlukBiomas').value;
+
+            // Bilgisayarın mevcut tarih ve saatini al
+            const currentDateTime = new Date();
+            const formattedDateTime = currentDateTime.toLocaleString('tr-TR', { 
+                dateStyle: 'short', 
+                timeStyle: 'short' 
+            });
+            const ay = currentDateTime.toLocaleString('tr-TR', { month: 'long' }); // Ay bilgisini al
+
+            // Yeni veriyi oluştur
+            const newData = {
+                kafes,
+                ay,
+                olum,
+                gunlukYem,
+                balikRapor,
+                oksijen,
+                sicaklik,
+                gunlukYemYuzde,
+                gunlukBiomas,
+                tarihSaat: formattedDateTime
+            };
+
+            // localStorage'a veriyi ekle
+            const storedData = JSON.parse(localStorage.getItem('dataListD')) || []; // Bina D için veri
+            storedData.push(newData);
+            localStorage.setItem('dataListD', JSON.stringify(storedData)); // Bina D için kaydet
+
+            // Tabloya ekle
+            addRowToTable(newData, storedData.length - 1);
+
+            // Formu sıfırla
+            document.getElementById('dataForm').reset();
+        };
+
+        function addRowToTable(data, index) {
+            const tableBody = document.getElementById('dataTableBody');
+            const newRow = tableBody.insertRow();
+
+            newRow.innerHTML = `
+                <td>${data.kafes}</td>
+                <td>${data.ay}</td>
+                <td>${data.olum}</td>
+                <td>${data.gunlukYem} kg</td>
+                <td>${data.balikRapor}</td>
+                <td>${data.oksijen} mg/L</td>
+                <td>${data.sicaklik} °C</td>
+                <td>%${data.gunlukYemYuzde}</td>
+                <td>${data.gunlukBiomas} kg</td>
+                <td>${data.tarihSaat}</td>
+                <td><button onclick="deleteRow(${index})">Sil</button></td>
+            `;
+        }
+
+        function deleteRow(index) {
+            let storedData = JSON.parse(localStorage.getItem('dataListD')) || []; // Bina D için veri
+            storedData.splice(index, 1);
+            localStorage.setItem('dataListD', JSON.stringify(storedData)); // Bina D için güncelle
+
+            // Tabloyu güncelle
+            document.getElementById('dataTableBody').innerHTML = '';
+            storedData.forEach((data, index) => {
+                addRowToTable(data, index);
+            });
+        }
+
+        function loadCages() {
+            const storedCages = JSON.parse(localStorage.getItem('cageListD')) || []; // Bina D için kafes listesi
+            const kafesSecimi = document.getElementById('kafesSecimi');
+            kafesSecimi.innerHTML = ''; // Mevcut seçenekleri temizle
+
+            storedCages.forEach(kafes => {
+                let option = document.createElement('option');
+                option.value = kafes;
+                option.text = kafes;
+                kafesSecimi.appendChild(option);
+            });
+        }
+
+        function addCage() {
+            const kafesAdi = document.getElementById('kafesAdi').value;
+            if (kafesAdi) {
+                const storedCages = JSON.parse(localStorage.getItem('cageListD')) || []; // Bina D için kafes listesi
+                storedCages.push(kafesAdi);
+                localStorage.setItem('cageListD', JSON.stringify(storedCages)); // Bina D için kaydet
+
+                loadCages();
+                document.getElementById('kafesAdi').value = ''; // Temizle
+            } else {
+                alert("Lütfen bir kafes adı girin.");
+            }
+        }
+
+        function deleteCage() {
+            const kafesAdi = document.getElementById('kafesAdi').value;
+            if (kafesAdi) {
+                let storedCages = JSON.parse(localStorage.getItem('cageListD')) || []; // Bina D için kafes listesi
+                const index = storedCages.indexOf(kafesAdi);
+                if (index !== -1) {
+                    storedCages.splice(index, 1);
+                    localStorage.setItem('cageListD', JSON.stringify(storedCages)); // Bina D için güncelle
+
+                    loadCages();
+                    document.getElementById('kafesAdi').value = ''; // Temizle
+                } else {
+                    alert("Kafes bulunamadı.");
+                }
+            } else {
+                alert("Lütfen silmek istediğiniz kafesin adını girin.");
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'bina-secimi.html'; // Bina seçimi sayfasına dön
+        }
+
+        function goToEditPage() {
+            window.location.href = 'duzenle-D.html'; // Bu sayfanın bina D için olduğunu varsayıyoruz
+        }
+    </script>
+</body>
+</html>
